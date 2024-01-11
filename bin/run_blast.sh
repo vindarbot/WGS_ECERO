@@ -2,17 +2,22 @@
 #SBATCH -p workq
 #SBATCH --mem=64G
 #SBATCH -J blastn
-#SBATCH --array=1-30
+#SBATCH --array=1-163
 
-# Get the filename for this instance of the job array
-fi=$(ls prokka/*fna | sed -n ${SLURM_ARRAY_TASK_ID}p)
+# Load any necessary modules or activate your conda environment if needed
+# Example: module load your_module
 
-# Run Prokka for this file
-basename=$(echo $fi | cut -f2 -d"/" | cut -f1 -d".")
-# blastn -query $fi -db /save/vdarbot/databases/genomicepidemiology-resfinder_db-f46d8fce2860/all.fsa -outfmt "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qcovs qcovhsp" -out blast/resistence/"$basename".tsv
+# Define the function to process each file
+process_file() {
+    local file="$1"
+    local basename=$(echo "$file" | rev | cut -d'/' -f1 | rev | cut -f1-2 -d".")
+    
+    # Adjust the command based on your needs
+    run_resfinder.py -ifa "$file" -db_res /save/user/vdarbot/databases/genomicepidemiology-resfinder_db-f46d8fce2860/ -t 0.90 -l 0.60 --acquired --point --species "Enterococcus faecium" -o "results/resfinder/$basename"
+}
 
-# mkdir virulencefinder/"$basename" 
-# virulencefinder.py -i $fi -p /save/vdarbot/databases/genomicepidemiology-virulencefinder_db-0b9675612265/ -o virulencefinder/"$basename" -x 
+export -f process_file
 
-mkdir resfinder/"$basename" 
-run_resfinder.py -ifa $fi -db_res /save/vdarbot/databases/genomicepidemiology-resfinder_db-f46d8fce2860/ -t 0.90 -l 0.60 -o resfinder/"$basename" --acquired --point --species "Escherichia coli"
+# Run the function for the current SLURM array task ID
+file=$(ls results/prokka/*fna | sed -n "${SLURM_ARRAY_TASK_ID}p")
+process_file "$file"

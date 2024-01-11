@@ -7,7 +7,6 @@ library('tidyr')
 library("ggtree")
 library('ape')
 
-virulence_genes = read_tsv("stats/virulence_gene_to_assembly.tsv")
 virulence_genes = read_tsv("stats/acquired_res_gene_to_assembly.tsv")
 
 virulence_genes_tide <- virulence_genes %>% mutate(Value = 1)

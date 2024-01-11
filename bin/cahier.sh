@@ -41,3 +41,18 @@ module load containers/singularity/3.9.9
 
 # Change the names of bakta gff files to be compatible with roray:
 find results/bakta/ -type f -name "contigs.gff3" -exec bash -c 'mv "$0" "${0%/*}/$(basename "${0%/*}").gff3"' {} \;
+
+
+# roary 
+sbatch --mem=128g --wrap="roary -e --mafft -p 128 results/prokka/*gff -f roary_with_publicgenomes_output/"
+
+
+# blast genes to search
+makeblastdb -in data/genes_to_search/genes_to_search.fasta -dbtype nucl -out data/genes_to_search/genes_to_search
+
+A FAIRE:
+HEATMAP avec GENES DE RESISTANCES DONT ECHANTILLONS OU YA RIEN , (45 + GENOMES PUBLICS + 2 POOLES)
+
+ROARY : ARBRE PHYLO SUR l'ENSEMBLE POUR VOIR OU SE SITUENT LES 45 SOUCHES 
+
+ASSEMBLAGES: FAIRE MARCHE RIBOSEED POUR VOIR SI CA AMELIORE LASSEMBLAGE
