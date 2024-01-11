@@ -3,7 +3,7 @@ import os
 import sys
 import subprocess 
 
-from multiprocessing import Pool
+from multiprocessing import Pool, cpu_count
 
 def process_pair(fileR1):
     dividing = fileR1.split(".")
@@ -25,8 +25,11 @@ if __name__ == "__main__":
 
     # Adjust the number of processes based on your system's capabilities
     num_processes = 45  # You can change this number as needed
+    total_threads = cpu_count()
 
+    # Distribute threads evenly among processes
+    threads_per_process = total_threads // num_processes
     with Pool(num_processes) as pool:
-        pool.map(process_pair, file_list)
+        pool.map(process_pair, file_list, chunksize=threads_per_process)
 
 
