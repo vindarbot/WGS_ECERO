@@ -51,8 +51,19 @@ sbatch --mem=128g --wrap="roary -e --mafft -p 128 results/prokka/*gff -f roary_w
 makeblastdb -in data/genes_to_search/genes_to_search.fasta -dbtype nucl -out data/genes_to_search/genes_to_search
 
 A FAIRE:
-HEATMAP avec GENES DE RESISTANCES DONT ECHANTILLONS OU YA RIEN , (45 + GENOMES PUBLICS + 2 POOLES)
+HEATMAP avec GENES DE RESISTANCES DONT ECHANTILLONS OU YA RIEN , (45 + GENOMES PUBLICS + 2 POOLES) OK
 
-ROARY : ARBRE PHYLO SUR l'ENSEMBLE POUR VOIR OU SE SITUENT LES 45 SOUCHES 
+ROARY : ARBRE PHYLO SUR l'ENSEMBLE POUR VOIR OU SE SITUENT LES 45 SOUCHES OK  
 
 ASSEMBLAGES: FAIRE MARCHE RIBOSEED POUR VOIR SI CA AMELIORE LASSEMBLAGE
+
+
+## Tree a partir des snp-sites obtenus sur roary_with_publicgenomes:
+sbatch --mem=256g --wrap="raxml-ng-mpi --all --msa results/roary_core_gene_alignments_snp_sites.aln --model LG+G8+F
+ --tree pars{10} --bs-trees 100"
+
+ ## Calculate genome coverage 
+ # Indexing geneome reference
+ bwa-mem2 index data/reference/e_cecor.fasta
+ # And 
+ bwa-mem2 mem data/reference/e_cecor.fasta  results/trim/123-2022-53-C_S5_L001_R1_001_trimmed.fastq.gz results/trim/123-2022-53-C_S5_L001_R2_001_trimmed.fastq.gz > alignment.sam

@@ -15,12 +15,12 @@ virulence_genes['Value'] = 1
 # Create a binary matrix indicating the presence/absence of important genes in each assembly
 heatmap_data = virulence_genes.pivot_table(index='Assembly', columns='Gene', values='Value', fill_value=0)
 
-
-
+# Save the heatmap data to a TSV file
+heatmap_data.to_csv("results/resfinder/presence_absence_resistence_genes.tsv", sep="\t")
 # Create the heatmap
-plt.figure(figsize=(10, 6))
+plt.figure(figsize=(18, 40))
 sns.heatmap(heatmap_data, cmap="YlGnBu", cbar=False)
-plt.title("Virulence genes Presence/Absence Heatmap")
+plt.title("Resistances genes Presence/Absence Heatmap")
 plt.xlabel("Genes")
 plt.ylabel("Samples")
 plt.xticks(rotation=90)
