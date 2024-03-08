@@ -23,8 +23,7 @@ if __name__ == "__main__":
     inputdirectory = sys.argv[1]
     file_list = [file for file in os.listdir(inputdirectory) if "R1" in file]
 
-    # Adjust the number of processes based on your system's capabilities
-    num_processes = 45  # You can change this number as needed
+    num_processes = 45  # Nombre d'échantillons à réaliser en parallèle
     total_threads = cpu_count()
 
     # Distribute threads evenly among processes
