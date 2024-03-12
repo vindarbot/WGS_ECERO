@@ -1,23 +1,21 @@
 import os
 import subprocess
+import argparse
+from multiprocessing import Pool, cpu_count
 
-# Path to the main folder containing the assembly subfolders
-main_folder = "assembly"
+def run_quast(contigs_files):
+    quast_folder = args.output_dir
+    quast_command = f"quast.py -o {quast_folder} " + contigs_files
+    subprocess.call(quast_command, shell=True)
 
-# Iterate through each subfolder in the main folder
-for subfolder in os.listdir(main_folder):
-    subfolder_path = os.path.join(main_folder, subfolder)
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser.add_argument('-i', '--input_dir', required=True, type=str, help='Path to the input directory')
+    parser.add_argument('-o', '--output_dir', required=True, type=str, help='Path to the output directory')
 
-    # Check if the subfolder contains a contigs.fasta file
-    contigs_path = os.path.join(subfolder_path, "contigs.fasta")
-    if os.path.isfile(contigs_path):
+    args = parser.parse_args()
 
-        # Create a subfolder for QUAST results
-        quast_folder = os.path.join("quast_spades", subfolder_path.split('/')[1])
-        print(quast_folder)
-        os.makedirs(quast_folder, exist_ok=True)
+    contigs_files = args.input_dir + "/*contigs.fasta"
 
-        # Run QUAST on the contigs.fasta file
-        quast_command = f"quast.py -o {quast_folder} {contigs_path}"
-        subprocess.run(quast_command, shell=True)
+    run_quast(contigs_files)
 

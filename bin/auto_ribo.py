@@ -1,48 +1,49 @@
 import os
 import sys
-import subprocess 
+import subprocess
+import argparse
+import shutil
 from multiprocessing import Pool, cpu_count
-import glob
 
-def process_pair(file_number):
-    input_directory = "fastp/"
-    output_directory = "riboseed/"
+def process_pair(fileR1):
+    dividing = fileR1.split(".")
+    if "R1" in fileR1:
+        fileR2 = fileR1.replace('R1', 'R2')
+        if os.path.isfile(os.path.join(args.input_dir, fileR2)):
+            
+            output = dividing[0].split('R1')[0].rstrip('_')
 
-    # Convert the file number to a string and add leading zeros if necessary
-    file_number_str = str(file_number)
+            subprocess.call(f"ribo run -r " + args.reference_file + " -c " + args.output_dir + "/config.file -F " + os.path.join(args.input_dir, fileR1) + " -R " + os.path.join(args.input_dir, fileR2) + " -o " + args.output_dir + "/" + output + " -v 1 --cores 8 --memory 128", shell=True)
 
-    if file_number_str == "96":
-            file_number_str = "096"
-    if file_number_str == "97":
-            file_number_str = "097"
-    if file_number_str == "98":
-            file_number_str = "098"
-    if file_number_str == "99":
-            file_number_str = "099"
 
-    # Use glob to find the appropriate files matching the pattern
-    trimmed_forward_reads = glob.glob(f"{input_directory}{file_number}*R1_001_trimmed.fastq.gz")
-    trimmed_reverse_reads = glob.glob(f"{input_directory}{file_number}*R2_001_trimmed.fastq.gz")
+            source_path = os.path.abspath(args.output_dir + "/" + output + "/seed/final_de_novo_assembly/contigs.fasta")
 
-    # Ensure only one file is found for each pattern
-    if len(trimmed_forward_reads) == 1 and len(trimmed_reverse_reads) == 1:
-        forward_reads = trimmed_forward_reads[0]
-        reverse_reads = trimmed_reverse_reads[0]
+            destination_dir = os.path.abspath(args.output_dir)
 
-        output_directory += file_number_str
+            destination_file = os.path.join(destination_dir, output + "_" + os.path.basename(source_path))
 
-        subprocess.call(f"ribo run -r data/reference/e_cecor.fasta -c riboseed/config.file -F {forward_reads} -R {reverse_reads} -o {output_directory} -v 1 --cores 8 --memory 128", shell=True)
-    else:
-        print(f"Error: Multiple or no files found for file number {file_number}")
+            os.symlink(source_path, destination_file)
+
 
 if __name__ == "__main__":
-    # Assuming file numbers range from 96 to 140
-    file_numbers = range(96, 141)
+    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser.add_argument('-i', '--input_dir', required=True, type=str, help='Path to the input directory')
+    parser.add_argument('-o', '--output_dir', default="", type=str, help='Path to the output directory')
+    parser.add_argument('-r', '--reference_file', type=str, help='Path to the output directory')
+    parser.add_argument('--num_threads', type=int, default=1, help='Number of processes to use')
 
-    num_processes = 45  # Nombre d'échantillons à réaliser en parallèle
+    args = parser.parse_args()
+
+    args.output_dir = args.output_dir + "/"
+    file_list = [file for file in os.listdir(args.input_dir) if "R1" in file]
+
     total_threads = cpu_count()
 
-    # Distribute threads evenly among processes
+
+    num_processes = min(args.num_threads, total_threads)
+
+
     threads_per_process = total_threads // num_processes
+
     with Pool(num_processes) as pool:
-        pool.map(process_pair, file_numbers, chunksize=threads_per_process)
+        pool.map(process_pair, file_list, chunksize=threads_per_process)
