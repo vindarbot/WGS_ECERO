@@ -19,8 +19,8 @@ def process_pair(fileR1):
                             args.input_dir + fileR2 + " --out1 " +
                             output1 + "_trimmed.fastq.gz --out2 " +
                             output2 + "_trimmed.fastq.gz --unpaired1 " +
-                            "output_forward_unpaired.fq.gz --unpaired2 " +
-                            "output_reverse_unpaired.fq.gz --json " +
+                            output1 + "_unpaired.fastq.gz --unpaired2 " +
+                            output2 + "_unpaired.fastq.gz --json " +
                             args.output_dir + out_suffix + "_trimmed.json --html " +
                             args.output_dir + out_suffix + "_trimmed.html  --qualified_quality_phred 33 --length_required 20", shell=True)
 

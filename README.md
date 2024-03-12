@@ -2,8 +2,10 @@
 
 # REQUIREMENTS
 
-Les lectures brutes doivent se situer dans un répertoire avec être sous la forme  SAMPLE_NAME_R1.fastq.gz et SAMPLE_NAME_R2.fastq.gz
+ - Les lectures brutes doivent se situer dans un répertoire avec être sous la forme  SAMPLE_NAME_R1.fastq.gz et SAMPLE_NAME_R2.fastq.gz
 
+ - Pour le rapport multiQC, il est préférable d'avoir l'ensemble des résultats dans un même dossier. Pour chaque analyse, créer donc un sous-dossier dans ce dossier de résultats
+ Exemple: results/trim results/assemblies etc
 # ETAPES
 
 mkdir -r results/trim/
