@@ -11,7 +11,6 @@
 
 mkdir results/
 
-sbatch --mem=8g --wrap="fastqc -o res/fastqc/ res/trim/*"
 
 
 ## FASTQC
@@ -20,9 +19,11 @@ sbatch --mem=8g --wrap="fastqc -o res/fastqc/ res/trim/*"
 
 Pour ça:
 
+mkdir -p results/fastqc/raw
+
 module load bioinfo/FastQC/0.12.1
 
-mkdir results/fastqc
+sbatch --mem=8g --wrap="fastqc -o results/fastqc/raw test/*"
 
 ## Trimming
 
@@ -32,12 +33,13 @@ mkdir results/trim/
 
 module load bioinfo/fastp/0.23.2
 
-sbatch --mem=128g  --wrap="python3 bin/auto_fastp.py -i test/ -o results/trim/ --num_threads 45"
-
-Remarque: 45 échantillons en entrée donc on parallélise ici sur 45 
+sbatch --mem=128g  --wrap="python3 bin/auto_fastp.py -i test/ -o results/trim/ --num_threads 4"
 
 - lancer fastQC après fastp : Normalement on enlève la décroissance en fin de lecture. Si ce n'est pas le cas, être plus stricte sur le score PHRED de fastp.
 
+mkdir results/fastqc/trim/ 
+
+sbatch --mem=8g --wrap="fastqc -o results/fastqc/trim results/trim/*"
 
 ## Assemblage avec Spades ou Riboseed 
 
@@ -47,7 +49,7 @@ mkdir results/spades/
 
 module load bioinfo/SPAdes/3.15.5_compil
 
-sbatch --mem=128g  --wrap="python3 bin/auto_spades.py -i results/trim/ -o results/spades/ --num_threads 45"
+sbatch --mem=128g  --wrap="python3 bin/auto_spades.py -i results/trim/ -o results/spades/ --num_threads 4"
 
 
 2.2) Riboseed + Spades
@@ -98,7 +100,7 @@ conda install -c bioconda prokka
 
 mkdir results/prokka/
 
-sbatch --mem=128g  --wrap="python3 bin/run_prokka.py -i results/spades/ -o results/prokka/ --num_threads 45"
+sbatch --mem=128g  --wrap="python3 bin/run_prokka.py -i results/spades/ -o results/prokka/ --num_threads 4"
 
 
 ## Bakta
@@ -113,6 +115,9 @@ bakta_db download --output <output-path> --type light
 
 Sinon, elle est accessible à : /save/user/vdarbot/bakta/db-light/
 
+ATTENTION : Ne pas créé le dossier de sortie désiré en amont (exemple results/bakta) , car bakta le fait de lui même
+
+sbatch --mem=128gg --wrap="python3 bin/run_bakta.py -i res/assembl/ -o res/bakta --num_threads 4"
 
 
 ## Comparaisons des génomes entre eux 
