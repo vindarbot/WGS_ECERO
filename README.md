@@ -6,17 +6,38 @@
 
  - Pour le rapport multiQC, il est préférable d'avoir l'ensemble des résultats dans un même dossier. Pour chaque analyse, créer donc un sous-dossier dans ce dossier de résultats
  Exemple: results/trim results/assemblies etc
+
 # ETAPES
 
-mkdir -r results/trim/
+mkdir results/
+
+sbatch --mem=8g --wrap="fastqc -o res/fastqc/ res/trim/*"
+
+
+## FASTQC
+
+ - Contrôle qualité des lectures : possibilité de lancer fastQC sur les données brutes pour voir les graphiques de qualité des lectures (on est sensé observer une courbe qui décroit en fin de lectures, bonne qualité de lecture au dessus de 20 (score PHRED) )
+
+Pour ça:
+
+module load bioinfo/FastQC/0.12.1
+
+mkdir results/fastqc
 
 ## Trimming
+
+mkdir results/trim/
 
 1) Fastp
 
 module load bioinfo/fastp/0.23.2
 
 sbatch --mem=128g  --wrap="python3 bin/auto_fastp.py -i test/ -o results/trim/ --num_threads 45"
+
+Remarque: 45 échantillons en entrée donc on parallélise ici sur 45 
+
+- lancer fastQC après fastp : Normalement on enlève la décroissance en fin de lecture. Si ce n'est pas le cas, être plus stricte sur le score PHRED de fastp.
+
 
 ## Assemblage avec Spades ou Riboseed 
 
@@ -46,12 +67,28 @@ python3 bin/auto_ribo.py -i res/trim/ -o res/riboseed/ -r data/reference/e_cecor
 
 ## Contrôle qualité et métriques des assemblages
 
-3) Quast
+3.1) Quast
 
 mkdir results/spades/
 
 python3 bin/run_quast.py -i results/spades/ -o results/quast/
 
+Rapport QUAST: 
+- Bon assemblage == on a une courbe ascendante avec plateau (graphe taille cumulative en fonction du nombre de contigs)
+- Y a t'il des échantillons qui ont moins bien marché ? --> Comparaison des N50 des différents échantillons.  == assemblage moins fragmenté == meilleure qualité.
+
+
+3.2) CheckM
+
+module load devel/Miniconda/Miniconda3
+
+module load bioinfo/CheckM/1.2.2
+
+Checkm avec données WGS: on utilise la commande taxonomy_wf pour spécifier le genre bactérien en question.
+
+checkm taxonomy_wf -t 32 -f res/checkm/checkm_results.txt -x fasta genus Enterococcus res/assembl/ res/checkm/
+
+Le fichier res/checkm/checkm_results.txt donne les résultats de complétudes , contamination des génomes
 
 ## Annotations fonctionnelles
 
@@ -64,12 +101,27 @@ mkdir results/prokka/
 sbatch --mem=128g  --wrap="python3 bin/run_prokka.py -i results/spades/ -o results/prokka/ --num_threads 45"
 
 
+## Bakta
+
+Pour réaliser l'annotation fonctionnelles des génomes 
+
+conda install -c conda-forge  -c bioconda bakta
+
+Si la base de données n'est pas téléchargé on peut la télécharger comme suit:
+
+bakta_db download --output <output-path> --type light
+
+Sinon, elle est accessible à : /save/user/vdarbot/bakta/db-light/
+
+
+
 ## Comparaisons des génomes entre eux 
 
 5) Roary (détection du core et du pan-genome: https://github.com/sanger-pathogens/Roary)
 
 --mafft permet à la suite de l'identification des cores-genes, de réaliser l'alignement de ces cores-genes avec MAFFT
 
+res/roary/_1710237466/gene_presence_absence.csv
 
 conda create --name roary_env roary
 
@@ -80,9 +132,9 @@ mkdir results/roary/
 sbatch --mem=128g --wrap="roary -e --mafft -p 128 results/prokka/*gff -f results/roary/"
 
 
-Le résultat d'alignement se situe dans output_dir/core_gene_alignment.aln
+Le résultat d'alignement se situe dans results/roary/core_gene_alignment.aln
 
-## Reconstruction phylogééntique à partir du core genome
+## Reconstruction phylogénétique à partir du core genome
 
 6) RAXML
 
