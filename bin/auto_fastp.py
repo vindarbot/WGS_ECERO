@@ -23,7 +23,7 @@ def process_pair(fileR1):
                             output2 + "_unpaired.fastq.gz --json " +
                             args.output_dir + out_suffix + "_trimmed.json --html " +
                             args.output_dir + out_suffix + "_trimmed.html  --qualified_quality_phred 33 --length_required 20 --cut_window_size 4 --cut_mean_quality 20 --cut_tail", shell=True)
-
+            
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process some integers.')
     parser.add_argument('-i', '--input_dir', required=True, type=str, help='Path to the input directory')

@@ -12,8 +12,9 @@ def process_pair(fileR1):
         if os.path.isfile(os.path.join(args.input_dir, fileR2)):
             
             output = dividing[0].split('R1')[0].rstrip('_')
+            
 
-            subprocess.call(f"ribo run -r " + args.reference_file + " -c " + args.output_dir + "/config.file -F " + os.path.join(args.input_dir, fileR1) + " -R " + os.path.join(args.input_dir, fileR2) + " -o " + args.output_dir + "/" + output + " -v 1 --cores 8 --memory 128", shell=True)
+            subprocess.call("ribo run -r {} -c {}/config.file -F {} -R {} -o {}/{} -v 1 --memory 128 --cores 8".format(args.reference_file, args.output_dir, os.path.join(args.input_dir, fileR1), os.path.join(args.input_dir, fileR2), args.output_dir, output), shell=True)
 
 
             source_path = os.path.abspath(args.output_dir + "/" + output + "/seed/final_de_novo_assembly/contigs.fasta")
@@ -35,7 +36,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     args.output_dir = args.output_dir + "/"
-    file_list = [file for file in os.listdir(args.input_dir) if "R1" in file]
+    file_list = [file for file in os.listdir(args.input_dir) if file.endswith("trimmed.fastq.gz") and "R1" in file]
 
     total_threads = cpu_count()
 

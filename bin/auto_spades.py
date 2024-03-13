@@ -41,7 +41,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     args.output_dir = args.output_dir + "/"
-    file_list = [file for file in os.listdir(args.input_dir) if "R1" in file]
+    file_list = [file for file in os.listdir(args.input_dir) if file.endswith("trimmed.fastq.gz") and "R1" in file]
 
     total_threads = cpu_count()
 

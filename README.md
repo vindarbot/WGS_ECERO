@@ -33,7 +33,7 @@ mkdir results/trim/
 
 module load bioinfo/fastp/0.23.2
 
-sbatch --mem=128g  --wrap="python3 bin/auto_fastp.py -i test/ -o results/trim/ --num_threads 4"
+sbatch --mem=128g  --wrap="python3 bin/auto_fastp.py -i test/ -o results/trim/ --num_threads 2"
 
 - lancer fastQC après fastp : Normalement on enlève la décroissance en fin de lecture. Si ce n'est pas le cas, être plus stricte sur le score PHRED de fastp.
 
@@ -49,7 +49,7 @@ mkdir results/spades/
 
 module load bioinfo/SPAdes/3.15.5_compil
 
-sbatch --mem=128g  --wrap="python3 bin/auto_spades.py -i results/trim/ -o results/spades/ --num_threads 4"
+sbatch --mem=128g  --wrap="python3 bin/auto_spades.py -i results/trim/ -o results/spades/ --num_threads 2"
 
 
 2.2) Riboseed + Spades
@@ -58,11 +58,16 @@ https://github.com/nickp60/riboSeed
 
 riboSeed is an supplemental assembly refinement method to try to address the issue of multiple ribosomal regions in a genome, as these create repeats unresolvable by short read sequencing. It takes advantage of the fact that while each region is identical, the regions flanking are unique, and therefore can potentially be used to seed an assembly in such a way that rDNA regions are bridged.
 
+ATTENTION: Besoin d'avoir un génome de référence de l'espèce bacrérienne en question 
+AUSSI mettre --mem=128g minimum car l'outil nécessite beaucoup de mémoire, et peut planter
+
 mkdir results/riboseed 
 
-Besoin d'avoir un génome de référence de l'espèce bacrérienne en question
+module load devel/Miniconda/Miniconda3
 
-python3 bin/auto_ribo.py -i res/trim/ -o res/riboseed/ -r data/reference/e_cecor.fasta
+module load bioinfo/riboSeed/0.4.90
+
+sbatch --mem=128g --wrap="python3 bin/auto_ribo.py -i expected_output/trim/ -o expected_output/riboseed/ -r /home/vdarbot/work/ececorum_analysis/data/reference/e_cecor.fasta --num_threads 2"
 
 
 
