@@ -99,7 +99,7 @@ Le fichier res/checkm/checkm_results.txt donne les résultats de complétudes , 
 
 ## Annotations fonctionnelles
 
-4) Prokka
+4)1) Prokka
 
 conda install -c bioconda prokka
 
@@ -108,17 +108,24 @@ mkdir results/prokka/
 sbatch --mem=128g  --wrap="python3 bin/run_prokka.py -i results/spades/ -o results/prokka/ --num_threads 4"
 
 
-## Bakta
+4)2) Bakta
 
 Pour réaliser l'annotation fonctionnelles des génomes 
+A
+ATTENTION: faire "module purge" avant de charger bakta
 
-conda install -c conda-forge  -c bioconda bakta
+
+module load devel/Miniconda/Miniconda3
+
+module load bioinfo/Bakta/1.9.2
 
 Si la base de données n'est pas téléchargé on peut la télécharger comme suit:
 
 bakta_db download --output <output-path> --type light
 
 Sinon, elle est accessible à : /save/user/vdarbot/bakta/db-light/
+
+ATTENTION : si le chemin vers la base de donnée change, ne pas oublier de le changer dans le script bin/run_bakta.py (ligne 20)
 
 ATTENTION : Ne pas créé le dossier de sortie désiré en amont (exemple results/bakta) , car bakta le fait de lui même
 
@@ -152,11 +159,11 @@ module load mpi/openmpi/4.1.4
 
 module load bioinfo/RAxML-NG/1.2.0-MPI
 
-raxml-ng-mpi --all --msa  results/roary/core_gene_alignment.aln --model GTR+G --tree results/tree/core_gene_raxml.tre --bs-trees 100
+raxml-ng-mpi --all --msa  results/roary/core_gene_alignment.aln --model GTR+G --tree results/tree/core_gene_raxml.tre --bs-trees 100*
 
 ## Rapport
 
-7) MULTIQC
+8) MULTIQC
 
 Toutes les analyses doivent se situer dans un même dossier, puis indiquer ce dossier à multiqc 
 
