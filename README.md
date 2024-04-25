@@ -129,7 +129,7 @@ ATTENTION : si le chemin vers la base de donnée change, ne pas oublier de le ch
 
 ATTENTION : Ne pas créé le dossier de sortie désiré en amont (exemple results/bakta) , car bakta le fait de lui même
 
-sbatch --mem=128gg --wrap="python3 bin/run_bakta.py -i res/assembl/ -o res/bakta --num_threads 4"
+sbatch --mem=128g --wrap="python3 bin/run_bakta.py -i res/assembl/ -o res/bakta --num_threads 4"
 
 
 ## Comparaisons des génomes entre eux 
