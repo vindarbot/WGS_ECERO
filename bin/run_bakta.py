@@ -10,8 +10,11 @@ def process_contigs(sample_info):
     input_file = f"{strain_identity}_contigs.fasta"
     input_path = os.path.join(args.input_dir, input_file)
     output = f"{strain_identity}"
-    output_dir = os.path.join(args.output_dir, output)
+
     
+    output_basename = strain_identity.replace('-','')
+    output_dir = os.path.join(args.output_dir, output_basename)
+        
     if os.path.isfile(input_path):
         os.makedirs(output_dir , exist_ok=True)
 
@@ -20,9 +23,9 @@ def process_contigs(sample_info):
             "bakta",
             "--db", "/save/user/vdarbot/bakta/db-light/",
             "--output", output_dir,
-            "--prefix", strain_identity,  # Include standardized strain identity in prefix
-            "--strain", strain_identity,  # Add standardized strain identity
-            "--locus-tag", f"EC{strain_identity}",  # Add standardized locus tag
+            "--prefix", output_basename,  # Include standardized strain identity in prefix
+            "--strain", output_basename,  # Add standardized strain identity
+            "--locus-tag", f"EC{output_basename}",  # Add standardized locus tag
             "--genus", "Enterococcus",
             "--species", "cecorum",
             input_path,
